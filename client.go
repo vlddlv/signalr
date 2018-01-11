@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"sync"
 
 	"github.com/gorilla/websocket"
+	"github.com/cardigann/go-cloudflare-scraper"
 )
 
 type negotiationResponse struct {
@@ -52,7 +54,12 @@ func negotiate(scheme, address string) (negotiationResponse, error) {
 
 	var negotiationUrl = url.URL{Scheme: scheme, Host: address, Path: "/signalr/negotiate"}
 
-	client := &http.Client{}
+	scraper, err := scraper.NewTransport(http.DefaultTransport)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := &http.Client{Transport: scraper}
 
 	reply, err := client.Get(negotiationUrl.String())
 	if err != nil {
