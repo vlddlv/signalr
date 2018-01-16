@@ -10,7 +10,7 @@ import (
 	"os"
 	"sync"
 
-	scraper "github.com/cardigann/go-cloudflare-scraper"
+	"github.com/vlddlv/go-cloudflare-scraper"
 	"github.com/gorilla/websocket"
 )
 
