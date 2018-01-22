@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"sync"
+	"os"
 
 	"github.com/vlddlv/go-cloudflare-scraper"
 	"github.com/gorilla/websocket"
@@ -25,6 +25,7 @@ type negotiationResponse struct {
 	ProtocolVersion         string
 	TransportConnectTimeout float32
 	LogPollDelay            float32
+	Cookie                  string
 }
 
 type Client struct {
@@ -67,6 +68,8 @@ func negotiate(scheme, address string) (negotiationResponse, error) {
 		return response, err
 	}
 
+	response.Cookie = reply.Request.Header.Get("Cookie")
+
 	defer reply.Body.Close()
 
 	if body, err := ioutil.ReadAll(reply.Body); err != nil {
@@ -100,8 +103,8 @@ func connectWebsocket(address string, params negotiationResponse, hubs []string)
 	connectionUrl.RawQuery = connectionParameters.Encode()
 
 	header := http.Header{}
-	header.Add("User-Agent", os.Getenv("BITTREX_USER_AGENT"))
-	header.Add("Cookie", os.Getenv("BITTREX_COOKIE"))
+	header.Add("User-Agent", os.Getenv("USER_AGENT"))
+	header.Add("Cookie", params.Cookie)
 
 	if conn, _, err := websocket.DefaultDialer.Dial(connectionUrl.String(), header); err != nil {
 		log.Println(err)
